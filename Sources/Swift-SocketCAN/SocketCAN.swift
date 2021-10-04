@@ -59,7 +59,7 @@ extension CAN.Frame {
 /// SocketCAN communication channel (not thread-safe)
 public class SocketCAN {
 
-    enum Error: Swift.Error {
+    public enum Error: Swift.Error {
         case canNotSupported
         case interfaceNotFound
         case interfaceNotCan
@@ -71,7 +71,7 @@ public class SocketCAN {
     let iface: String
     private var fd: Int32 = -1
 
-    init(iface: String) {
+    public init(iface: String) {
         self.iface = iface
     }
 
@@ -126,7 +126,7 @@ public class SocketCAN {
 /// Thread-safe SocketCAN actor
 public actor SocketCAN {
 
-    enum Error: Swift.Error {
+    public enum Error: Swift.Error {
         case canNotSupported
         case interfaceNotFound
         case interfaceNotCan
@@ -138,7 +138,7 @@ public actor SocketCAN {
     nonisolated let iface: String
     private var fd: Int32 = -1
 
-    init(iface: String) {
+    public init(iface: String) {
         self.iface = iface
     }
 
