@@ -98,7 +98,7 @@ public class SocketCAN {
     var isOpen: Bool { self.fd != -1 }
 
     /// Open the communication channel
-    func open() throws {
+    public func open() throws {
         guard !self.isOpen else { return }
         let fd = socketcan_open(self.iface)
         switch fd {
@@ -112,14 +112,14 @@ public class SocketCAN {
     }
 
     /// Close the communication channel
-    func close() {
+    public func close() {
         guard self.isOpen else { return }
         socketcan_close(self.fd)
         self.fd = -1
     }
 
     /// Blocking read the next CAN frame
-    func read(timeout: Int32 = 0) throws -> Frame {
+    public func read(timeout: Int32 = 0) throws -> Frame {
         var frame = can_frame()
         var tv = timeval()
         let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
@@ -135,7 +135,7 @@ public class SocketCAN {
     }
 
     /// Blocking write a CAN frame
-    func write(frame: Frame) throws {
+    public func write(frame: Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
         guard nBytes > 0 else { throw Error.writeError }
@@ -165,7 +165,7 @@ public actor SocketCAN {
     var isOpen: Bool { self.fd != -1 }
 
     /// Open the communication channel
-    func open() throws {
+    public func open() throws {
         guard !self.isOpen else { return }
         let fd = socketcan_open(self.iface)
         switch fd {
@@ -179,14 +179,14 @@ public actor SocketCAN {
     }
 
     /// Close the communication channel
-    func close() {
+    public func close() {
         guard self.isOpen else { return }
         socketcan_close(self.fd)
         self.fd = -1
     }
 
     /// Blocking read the next CAN frame
-    func read(timeout: Int32 = 0) throws -> Frame {
+    public func read(timeout: Int32 = 0) throws -> Frame {
         var frame = can_frame()
         var tv = timeval()
         let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
@@ -202,13 +202,13 @@ public actor SocketCAN {
     }
 
     /// Blocking write a CAN frame
-    func write(frame: Frame) throws {
+    public func write(frame: Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
         guard nBytes > 0 else { throw Error.writeError }
     }
 
-    func read(timeout: Int32 = 0) async throws -> Frame {
+    public func read(timeout: Int32 = 0) async throws -> Frame {
         try await withCheckedThrowingContinuation { continuation in
             do {
                 let frame = try self.read(timeout: timeout)
@@ -220,7 +220,7 @@ public actor SocketCAN {
     }
 
     /// Asynchronous write
-    func write(frame: Frame) async throws {
+    public func write(frame: Frame) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
             do {
                 try self.write(frame: frame)
