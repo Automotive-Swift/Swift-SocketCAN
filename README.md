@@ -7,7 +7,13 @@ if you're using an older compiler, you'll get a standard `class`.
 
 ## How to integrate
 
-This is an SPM-compliant Swift Package.
+This is an SPM-compliant Swift Package: First, add the following line in `Package.swift` to your package dependencies:
+
+```swift
+.package(url: "https://github.com/AutomotiveSwift/Swift-SocketCAN.git", from: "0.9.0")
+```
+
+Then, add the module `Swift-SocketCAN` – where necessary – to your target dependencies.
 
 ## Usage
 
