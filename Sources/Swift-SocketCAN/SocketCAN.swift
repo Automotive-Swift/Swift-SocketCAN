@@ -2,51 +2,31 @@
 
 import CSocketCAN
 import Glibc
+@_exported import Swift_CAN
 
-/// CAN Frame
-public struct Frame {
-
-    let id: UInt32
-    let dlc: Int
-    let data: [UInt8]
-    let timestamp: Double
-
-    /// Create padded CAN frame from data. DLC is hardcoded to 8.
-    init(id: UInt32, padded data: [UInt8], pad: UInt8 = 0xAA) {
-        self.id = id
-        var data = data
-        while data.count < 8 { data.append(pad) }
-        self.dlc = data.count
-        self.data = data
-        self.timestamp = 0
-    }
-
-    /// Create unpadded CAN frame from data. DLC is taken from length of data.
-    init(id: UInt32, unpadded data: [UInt8]) {
-        self.id = id
-        self.dlc = data.count
-        self.data = data
-        self.timestamp = 0
-    }
+/// CAN Frame extensions for converting between low-level and common format
+extension CAN.Frame {
 
     /// Create CAN frame from low-level structure
     fileprivate init(cm: can_frame, tv: timeval) {
-        self.dlc = Int(cm.can_dlc)
-        self.id = cm.can_id
-        self.timestamp = Double(tv.tv_sec) + Double(tv.tv_usec) / Double(1000000)
-        switch self.dlc {
-            case 0: self.data = []
-            case 1: self.data = [cm.data.0]
-            case 2: self.data = [cm.data.0, cm.data.1]
-            case 3: self.data = [cm.data.0, cm.data.1, cm.data.2]
-            case 4: self.data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3]
-            case 5: self.data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4]
-            case 6: self.data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5]
-            case 7: self.data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5, cm.data.6]
-            case 8: self.data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5, cm.data.6, cm.data.7]
+        let id = cm.can_id
+        let dlc = Int(cm.can_dlc)
+        let timestamp = Double(tv.tv_sec) + Double(tv.tv_usec) / Double(1000000)
+        var data: [UInt8] = []
+        switch dlc {
+            case 0: data = []
+            case 1: data = [cm.data.0]
+            case 2: data = [cm.data.0, cm.data.1]
+            case 3: data = [cm.data.0, cm.data.1, cm.data.2]
+            case 4: data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3]
+            case 5: data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4]
+            case 6: data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5]
+            case 7: data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5, cm.data.6]
+            case 8: data = [cm.data.0, cm.data.1, cm.data.2, cm.data.3, cm.data.4, cm.data.5, cm.data.6, cm.data.7]
             default:
                 preconditionFailure("CANFD frames not yet supported. TODO: Use Swift's mirror functionality to create a tuple-iterator")
         }
+        self.init(id: id, dlc: dlc, unpadded: data, timestamp: timestamp)
     }
 
     /// Create low-level structure from CAN frame
@@ -119,7 +99,7 @@ public class SocketCAN {
     }
 
     /// Blocking read the next CAN frame
-    public func read(timeout: Int32 = 0) throws -> Frame {
+    public func read(timeout: Int32 = 0) throws -> CAN.Frame {
         var frame = can_frame()
         var tv = timeval()
         let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
@@ -135,7 +115,7 @@ public class SocketCAN {
     }
 
     /// Blocking write a CAN frame
-    public func write(frame: Frame) throws {
+    public func write(frame: CAN.Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
         guard nBytes > 0 else { throw Error.writeError }
@@ -186,7 +166,7 @@ public actor SocketCAN {
     }
 
     /// Blocking read the next CAN frame
-    public func read(timeout: Int32 = 0) throws -> Frame {
+    public func read(timeout: Int32 = 0) throws -> CAN.Frame {
         var frame = can_frame()
         var tv = timeval()
         let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
@@ -196,19 +176,19 @@ public actor SocketCAN {
             case READ_ERROR:
                 throw Error.readError
             default:
-                let message = Frame(cm: frame, tv: tv)
+                let message = CAN.Frame(cm: frame, tv: tv)
                 return message
         }
     }
 
     /// Blocking write a CAN frame
-    public func write(frame: Frame) throws {
+    public func write(frame: CAN.Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
         guard nBytes > 0 else { throw Error.writeError }
     }
 
-    public func read(timeout: Int32 = 0) async throws -> Frame {
+    public func read(timeout: Int32 = 0) async throws -> CAN.Frame {
         try await withCheckedThrowingContinuation { continuation in
             do {
                 let frame = try self.read(timeout: timeout)
@@ -220,7 +200,7 @@ public actor SocketCAN {
     }
 
     /// Asynchronous write
-    public func write(frame: Frame) async throws {
+    public func write(frame: CAN.Frame) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
             do {
                 try self.write(frame: frame)

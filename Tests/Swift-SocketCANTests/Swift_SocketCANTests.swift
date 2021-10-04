@@ -11,7 +11,7 @@ final class Swift_SocketCANTests: XCTestCase {
             let socket = SocketCAN(iface: "toucan1")
             try! await socket.open()
 
-            let frame = Frame(id: 0x18db33f1, padded: [0x10, 0x01])
+            let frame = CAN.Frame(id: 0x18db33f1, padded: [0x10, 0x01])
             try? await socket.write(frame: frame)
 
             while true {
