@@ -1,4 +1,7 @@
 // This file is part of Swift-SocketCAN - (C) Dr. Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+#if !os(Linux)
+#error("This package requires Linux >= 5.10")
+#endif
 
 import CSocketCAN
 import Glibc
@@ -55,9 +58,8 @@ extension CAN.Frame {
     }
 }
 
-#if compiler(<5.5)
-/// SocketCAN communication channel (not thread-safe)
-public class SocketCAN {
+/// A simple SocketCAN communication channel. Blocking operations, not thread-safe.
+public class SocketCAN: CAN.Interface {
 
     public enum Error: Swift.Error {
         case canNotSupported
@@ -78,7 +80,7 @@ public class SocketCAN {
     var isOpen: Bool { self.fd != -1 }
 
     /// Open the communication channel
-    public func open() throws {
+    public func open(baudrate: Int) throws {
         guard !self.isOpen else { return }
         let fd = socketcan_open(self.iface)
         switch fd {
@@ -98,78 +100,11 @@ public class SocketCAN {
         self.fd = -1
     }
 
-    /// Blocking read the next CAN frame
-    public func read(timeout: Int32 = 0) throws -> CAN.Frame {
+    /// Blocking read the next CAN frame.
+    public func read(timeout: Int = 0) throws -> CAN.Frame {
         var frame = can_frame()
         var tv = timeval()
-        let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
-        switch nBytes {
-            case TIMEOUT:
-                throw Error.timeout
-            case READ_ERROR:
-                throw Error.readError
-            default:
-                let message = Frame(cm: frame, tv: tv)
-                return message
-        }
-    }
-
-    /// Blocking write a CAN frame
-    public func write(frame: CAN.Frame) throws {
-        var frame = frame.cm
-        let nBytes = socketcan_write(self.fd, &frame)
-        guard nBytes > 0 else { throw Error.writeError }
-    }
-
-}
-#else
-/// Thread-safe SocketCAN actor
-public actor SocketCAN {
-
-    public enum Error: Swift.Error {
-        case canNotSupported
-        case interfaceNotFound
-        case interfaceNotCan
-        case readError
-        case writeError
-        case timeout
-    }
-
-    nonisolated let iface: String
-    private var fd: Int32 = -1
-
-    public init(iface: String) {
-        self.iface = iface
-    }
-
-    var isOpen: Bool { self.fd != -1 }
-
-    /// Open the communication channel
-    public func open() throws {
-        guard !self.isOpen else { return }
-        let fd = socketcan_open(self.iface)
-        switch fd {
-            case CAN_UNSUPPORTED: throw Error.canNotSupported
-            case IFACE_NOT_FOUND: throw Error.interfaceNotFound
-            case IFACE_NOT_CAN: throw Error.interfaceNotCan
-
-            default:
-                self.fd = fd
-        }
-    }
-
-    /// Close the communication channel
-    public func close() {
-        guard self.isOpen else { return }
-        socketcan_close(self.fd)
-        self.fd = -1
-    }
-
-    /// Blocking read the next CAN frame
-    public func read(timeout: Int32 = 0) throws -> CAN.Frame {
-        var frame = can_frame()
-        var tv = timeval()
-        let nBytes = socketcan_read(self.fd, &frame, &tv, timeout)
+        let nBytes = socketcan_read(self.fd, &frame, &tv, Int32(timeout))
         switch nBytes {
             case TIMEOUT:
                 throw Error.timeout
@@ -181,34 +116,10 @@ public actor SocketCAN {
         }
     }
 
-    /// Blocking write a CAN frame
-    public func write(frame: CAN.Frame) throws {
+    /// Blocking write a CAN frame.
+    public func write(_ frame: CAN.Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
         guard nBytes > 0 else { throw Error.writeError }
     }
-
-    public func read(timeout: Int32 = 0) async throws -> CAN.Frame {
-        try await withCheckedThrowingContinuation { continuation in
-            do {
-                let frame = try self.read(timeout: timeout)
-                continuation.resume(returning: frame)
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
-    }
-
-    /// Asynchronous write
-    public func write(frame: CAN.Frame) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
-            do {
-                try self.write(frame: frame)
-                continuation.resume()
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
-    }
 }
-#endif
