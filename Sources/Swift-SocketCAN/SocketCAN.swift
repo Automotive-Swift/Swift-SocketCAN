@@ -61,15 +61,6 @@ extension CAN.Frame {
 /// A simple SocketCAN communication channel. Blocking operations, not thread-safe.
 public class SocketCAN: CAN.Interface {
 
-    public enum Error: Swift.Error {
-        case canNotSupported
-        case interfaceNotFound
-        case interfaceNotCan
-        case readError
-        case writeError
-        case timeout
-    }
-
     let iface: String
     private var fd: Int32 = -1
 
@@ -84,9 +75,9 @@ public class SocketCAN: CAN.Interface {
         guard !self.isOpen else { return }
         let fd = socketcan_open(self.iface)
         switch fd {
-            case CAN_UNSUPPORTED: throw Error.canNotSupported
-            case IFACE_NOT_FOUND: throw Error.interfaceNotFound
-            case IFACE_NOT_CAN: throw Error.interfaceNotCan
+            case CAN_UNSUPPORTED: throw CAN.Error.canNotSupported
+            case IFACE_NOT_FOUND: throw CAN.Error.interfaceNotFound
+            case IFACE_NOT_CAN: throw CAN.Error.interfaceNotCan
 
             default:
                 self.fd = fd
@@ -107,9 +98,9 @@ public class SocketCAN: CAN.Interface {
         let nBytes = socketcan_read(self.fd, &frame, &tv, Int32(timeout))
         switch nBytes {
             case TIMEOUT:
-                throw Error.timeout
+                throw CAN.Error.timeout
             case READ_ERROR:
-                throw Error.readError
+                throw CAN.Error.readError
             default:
                 let message = CAN.Frame(cm: frame, tv: tv)
                 return message
@@ -120,6 +111,6 @@ public class SocketCAN: CAN.Interface {
     public func write(_ frame: CAN.Frame) throws {
         var frame = frame.cm
         let nBytes = socketcan_write(self.fd, &frame)
-        guard nBytes > 0 else { throw Error.writeError }
+        guard nBytes > 0 else { throw CAN.Error.writeError }
     }
 }
