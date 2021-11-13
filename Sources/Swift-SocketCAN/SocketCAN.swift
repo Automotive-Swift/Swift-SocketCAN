@@ -12,7 +12,7 @@ extension CAN.Frame {
 
     /// Create CAN frame from low-level structure
     fileprivate init(cm: can_frame, tv: timeval) {
-        let id = cm.can_id
+        let id = cm.can_id & 0x1fffffff // mask out any flags
         let dlc = Int(cm.can_dlc)
         let timestamp = Double(tv.tv_sec) + Double(tv.tv_usec) / Double(1000000)
         var data: [UInt8] = []
