@@ -8,8 +8,8 @@ final class Swift_SocketCANTests: XCTestCase {
         // results.
 
         Task {
-            let socket = SocketCAN(iface: "toucan1")
-            try! await socket.open(baudrate: 500000)
+            let socket = SocketCAN(iface: "can0")
+            try! socket.open(baudrate: 500000)
 
             /*
             let frame = CAN.Frame(id: 0x7e8, padded: [0x10, 0x01])
@@ -37,7 +37,7 @@ final class Swift_SocketCANTests: XCTestCase {
                         str += String(format: " %02X", frame.data[i])
                     }
                     print(str)
-                } catch SocketCAN.Error.timeout {
+                } catch CAN.Error.timeout {
 
                 } catch {
                     print("error: \(error)")
