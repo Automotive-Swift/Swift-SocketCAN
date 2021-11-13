@@ -59,7 +59,7 @@ public class ISOTP {
             case READ_ERROR:
                 throw CAN.Error.readError
             default:
-                return self.buffer
+                return Array(self.buffer[..<Int(nBytes)])
         }
     }
 
