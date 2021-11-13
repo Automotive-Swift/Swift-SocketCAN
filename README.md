@@ -22,7 +22,7 @@ do {
     socket.open(baudrate: 500000)
 
     let frame = Frame(id: 0x18db33f1, padded: [0x10, 0x01])
-    try await socket.write(frame: frame)
+    try socket.write(frame: frame)
 } catch {
     print("An error occured: \(error)")
 }
@@ -32,7 +32,7 @@ Read CAN frames from `can0` and dump them to the console:
 
 ```swift
 let socket = SocketCAN(iface: "can0")
-try! await socket.open()
+try! socket.open()
 
 while true {
     do {
@@ -50,11 +50,16 @@ while true {
 }
 ```
 
-## Status and Roadmap
+## Status
 
 This has only received minimal testing yet, but it seems to work so far.
 Early tests with making this an `actor` on Swift 5.5 have failed, but I've not
 given up yet.
+
+## Roadmap
+
+- [ ] Add ISOTP support
+- [ ] Enable customizing the bitrate (and queue length?)
 
 ## License and Contributions
 
