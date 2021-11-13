@@ -1,5 +1,7 @@
 // This file is part of Swift-SocketCAN - (C) Dr. Michael 'Mickey' Lauer <mlauer@vanille-media.de>
 
+#include "socketcan.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,11 +13,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 
-#include <linux/can.h>
-#include <linux/can/raw.h>
 #include <linux/sockios.h>
-
-#include "socketcan.h"
 
 int socketcan_open(const char* iface) {
 

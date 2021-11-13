@@ -14,10 +14,13 @@
 #define TIMEOUT         -5
 
 typedef struct timeval struct_timeval;
+typedef struct socketcan_isotp* SSI;
 
-int socketcan_isotp_open(const char* iface);
-int socketcan_isotp_read(int fd, unsigned char*, struct timeval* tv, int timeout);
-int socketcan_isotp_write(int fd, const struct can_frame* frame);
-void socketcan_close(int fd);
+int socketcan_isotp_open(const char* iface, __u8 vlc, __u8 padding, SSI* ssi);
+int socketcan_isotp_configure(SSI ssi, __u8 vlc, __u8 padding);
+int socketcan_isotp_read(SSI ssi, unsigned char*, struct timeval* tv, int timeout);
+int socketcan_isotp_set_arbitration(SSI ssi, canid_t requestId, canid_t replyId);
+int socketcan_isotp_write(SSI ssi, const unsigned char* const data, __u16 count);
+void socketcan_isotp_close(SSI ssi);
 
 #endif //SWIFT_SOCKETCAN_ISOTP_H
