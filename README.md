@@ -58,8 +58,8 @@ given up yet.
 
 ## Roadmap
 
-- [ ] Add ISOTP support
-- [ ] Enable customizing the bitrate (and queue length?)
+- [x] Add ISOTP support
+- [ ] Add Device support (start, stop, set bitrate, queue length?)
 
 ## License and Contributions
 
