@@ -61,6 +61,7 @@ given up yet.
 - [x] ISOTP support
 - [x] Bitrate configuration (needs root or CAP_NET_ADMIN)
 - [ ] Queue length configuration
+- [ ] BCM (Broadcast Manager) support
 
 ## License and Contributions
 
