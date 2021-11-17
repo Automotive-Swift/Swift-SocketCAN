@@ -1,6 +1,7 @@
 // This file is part of Swift-SocketCAN - (C) Dr. Michael 'Mickey' Lauer <mlauer@vanille-media.de>
 
 #include "socketcan-isotp.h"
+#include "libsocketcan.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ struct socketcan_isotp {
     struct ifreq ifr;
 };
 
-int socketcan_isotp_open(const char* iface, __u8 vlc, __u8 padding, SSI* ssi) {
+int socketcan_isotp_open(const char* iface, int bitrate, __u8 vlc, __u8 padding, SSI* ssi) {
 
     struct socketcan_isotp* handle = malloc(sizeof(struct socketcan_isotp));
 
@@ -45,6 +46,18 @@ int socketcan_isotp_open(const char* iface, __u8 vlc, __u8 padding, SSI* ssi) {
     if (setsockopt(handle->fd, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &opts, sizeof(opts)) < 0) {
         perror("setsockopt");
         return IFACE_NOT_CAN;
+    }
+
+    if (bitrate) {
+        can_do_stop(iface);
+        if (can_set_bitrate(iface, bitrate) < 0) {
+            perror("Set bitrate");
+            return IFACE_CONFIGURATION;
+        }
+        if (can_do_start(iface) < 0) {
+            perror("Can't start");
+            return IFACE_CONFIGURATION;
+        }
     }
 
     memset(&handle->addr, 0, sizeof(handle->addr));

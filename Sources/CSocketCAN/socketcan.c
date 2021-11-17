@@ -1,6 +1,7 @@
 // This file is part of Swift-SocketCAN - (C) Dr. Michael 'Mickey' Lauer <mlauer@vanille-media.de>
 
 #include "socketcan.h"
+#include "libsocketcan.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@
 
 #include <linux/sockios.h>
 
-int socketcan_open(const char* iface) {
+int socketcan_open(const char* iface, int bitrate) {
 
     int fd;
     if ((fd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
@@ -29,6 +30,18 @@ int socketcan_open(const char* iface) {
     if (ioctl(fd, SIOCGIFINDEX, &ifr) < 0) {
         perror("ioctl");
         return IFACE_NOT_FOUND;
+    }
+
+    if (bitrate) {
+        can_do_stop(iface);
+        if (can_set_bitrate(iface, bitrate) < 0) {
+            perror("Set bitrate");
+            return IFACE_CONFIGURATION;
+        }
+        if (can_do_start(iface) < 0) {
+            perror("Can't start");
+            return IFACE_CONFIGURATION;
+        }
     }
 
     memset(&addr, 0, sizeof(addr));

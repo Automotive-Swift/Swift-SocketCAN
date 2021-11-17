@@ -22,12 +22,12 @@ public class ISOTP {
     }
 
     /// Open the communication channel.
-    public func open(baudrate: Int) throws {
+    public func open(bitrate: Int) throws {
         var handle: SSI? = nil
 
         // Per default, we're configuring the ISOTP state machine to use fixed length and padding.
         // Might consider making this configurable via the API.
-        let result = socketcan_isotp_open(self.iface, 0, 0xAA, &handle)
+        let result = socketcan_isotp_open(self.iface, Int32(bitrate), 0, 0xAA, &handle)
         switch result {
             case CAN_UNSUPPORTED: throw CAN.Error.canNotSupported
             case IFACE_NOT_FOUND: throw CAN.Error.interfaceNotFound

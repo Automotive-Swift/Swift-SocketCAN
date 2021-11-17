@@ -73,11 +73,12 @@ public class SocketCAN: CAN.Interface {
     /// Open the communication channel
     public func open(baudrate: Int) throws {
         guard !self.isOpen else { return }
-        let fd = socketcan_open(self.iface)
+        let fd = socketcan_open(self.iface, Int32(baudrate))
         switch fd {
             case CAN_UNSUPPORTED: throw CAN.Error.canNotSupported
             case IFACE_NOT_FOUND: throw CAN.Error.interfaceNotFound
             case IFACE_NOT_CAN: throw CAN.Error.interfaceNotCan
+            case IFACE_CONFIGURATION: throw CAN.Error.unsupportedConfiguration
 
             default:
                 self.fd = fd

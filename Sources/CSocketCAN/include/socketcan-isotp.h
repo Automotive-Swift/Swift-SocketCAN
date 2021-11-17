@@ -2,21 +2,17 @@
 #ifndef SWIFT_SOCKETCAN_ISOTP_H
 #define SWIFT_SOCKETCAN_ISOTP_H
 
+#include "common.h"
+
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <linux/can/isotp.h>
 #include <time.h>
 
-#define CAN_UNSUPPORTED -1
-#define IFACE_NOT_FOUND -2
-#define IFACE_NOT_CAN   -3
-#define READ_ERROR      -4
-#define TIMEOUT         -5
-
 typedef struct timeval struct_timeval;
 typedef struct socketcan_isotp* SSI;
 
-int socketcan_isotp_open(const char* iface, __u8 vlc, __u8 padding, SSI* ssi);
+int socketcan_isotp_open(const char* iface, int bitrate, __u8 vlc, __u8 padding, SSI* ssi);
 int socketcan_isotp_configure(SSI ssi, __u8 vlc, __u8 padding);
 int socketcan_isotp_read(SSI ssi, unsigned char*, struct timeval* tv, int timeout);
 int socketcan_isotp_set_arbitration(SSI ssi, canid_t requestId, canid_t replyId);
