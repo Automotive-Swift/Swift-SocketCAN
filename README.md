@@ -58,8 +58,9 @@ given up yet.
 
 ## Roadmap
 
-- [x] Add ISOTP support
-- [ ] Add Device support (start, stop, set bitrate, queue length?)
+- [x] ISOTP support
+- [x] Bitrate configuration (needs root or CAP_NET_ADMIN)
+- [ ] Queue length configuration
 
 ## License and Contributions
 
