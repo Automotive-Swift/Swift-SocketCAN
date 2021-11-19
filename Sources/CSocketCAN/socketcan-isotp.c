@@ -77,6 +77,8 @@ int socketcan_isotp_open(const char* iface, int bitrate, __u8 vlc, __u8 padding,
 }
 
 int socketcan_isotp_set_arbitration(SSI ssi, canid_t requestId, canid_t replyId) {
+    if (requestId >= 0x800) { requestId |= CAN_EFF_FLAG; }
+    if (replyId >= 0x800) { replyId |= CAN_EFF_FLAG; }
     ssi->addr.can_addr.tp.tx_id = requestId;
     ssi->addr.can_addr.tp.rx_id = replyId;
     if (bind(ssi->fd, (struct sockaddr *)&ssi->addr, sizeof(ssi->addr)) < 0) {
