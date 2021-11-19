@@ -32,6 +32,7 @@ public class ISOTP {
             case CAN_UNSUPPORTED: throw CAN.Error.canNotSupported
             case IFACE_NOT_FOUND: throw CAN.Error.interfaceNotFound
             case IFACE_NOT_CAN: throw CAN.Error.interfaceNotCan
+            case IFACE_CONFIGURATION: throw CAN.Error.unsupportedConfiguration
 
             default:
                 self.handle = handle
