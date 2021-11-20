@@ -10,11 +10,13 @@ import Glibc
 /// A simple ISOTP SocketCAN communication channel. Blocking operations, not thread-safe.
 public class ISOTP {
 
-    let iface: String
-    var handle: OpaquePointer?
-    var requestId: CAN.ArbitrationId = 0
-    var replyId: CAN.ArbitrationId = 0
-    var buffer: [UInt8] = .init(repeating: 0, count: 4096)
+    public let iface: String
+    public private(set) var requestId: CAN.ArbitrationId = 0
+    public private(set) var replyId: CAN.ArbitrationId = 0
+    public private(set) var bitrate: Int = 0
+
+    private var handle: OpaquePointer?
+    private var buffer: [UInt8] = .init(repeating: 0, count: 4096)
 
     /// Create.
     public init(iface: String, variableDLC: Bool = false, padding: UInt8 = 0xAA) {
@@ -36,6 +38,7 @@ public class ISOTP {
 
             default:
                 self.handle = handle
+                self.bitrate = bitrate
         }
     }
 
