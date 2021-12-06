@@ -5,12 +5,14 @@ import PackageDescription
 
 let package = Package(
     name: "Swift-SocketCAN",
+    /*
     platforms: [
         .macOS("9999"),
         .iOS("9999"),
         .tvOS("9999"),
         .watchOS("9999"),
     ],
+    */
     products: [
         .library(name: "Swift-SocketCAN", targets: ["Swift-SocketCAN"]),
         .library(name: "Swift-SocketCAN-ISOTP", targets: ["Swift-SocketCAN-ISOTP"]),
