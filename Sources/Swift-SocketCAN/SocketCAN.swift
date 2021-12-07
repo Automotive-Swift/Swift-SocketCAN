@@ -61,6 +61,12 @@ extension CAN.Frame {
 /// A simple SocketCAN communication channel. Blocking operations, not thread-safe.
 public class SocketCAN: CAN.Interface {
 
+    public let model: String = "Swift-SocketCAN"
+    public let vendor: String = "Automotive-Swift"
+    public let serialNumber: String = "1234567890"
+    public var name: String { self.iface }
+    public var bitrate: Int = -1
+
     let iface: String
     private var fd: Int32 = -1
 
@@ -71,9 +77,9 @@ public class SocketCAN: CAN.Interface {
     var isOpen: Bool { self.fd != -1 }
 
     /// Open the communication channel
-    public func open(baudrate: Int) throws {
+    public func open(bitrate: Int) throws {
         guard !self.isOpen else { return }
-        let fd = socketcan_open(self.iface, Int32(baudrate))
+        let fd = socketcan_open(self.iface, Int32(bitrate))
         switch fd {
             case CAN_UNSUPPORTED: throw CAN.Error.canNotSupported
             case IFACE_NOT_FOUND: throw CAN.Error.interfaceNotFound
@@ -82,6 +88,7 @@ public class SocketCAN: CAN.Interface {
 
             default:
                 self.fd = fd
+                self.bitrate = bitrate
         }
     }
 
@@ -90,6 +97,7 @@ public class SocketCAN: CAN.Interface {
         guard self.isOpen else { return }
         socketcan_close(self.fd)
         self.fd = -1
+        self.bitrate = -1
     }
 
     /// Blocking read the next CAN frame.

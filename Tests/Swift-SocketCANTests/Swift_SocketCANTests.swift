@@ -9,7 +9,7 @@ final class Swift_SocketCANTests: XCTestCase {
 
         Task {
             let socket = SocketCAN(iface: "can0")
-            try! socket.open(baudrate: 500000)
+            try! socket.open(bitrate: 500000)
 
             /*
             let frame = CAN.Frame(id: 0x7e8, padded: [0x10, 0x01])
