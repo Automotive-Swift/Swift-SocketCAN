@@ -18,7 +18,7 @@ let package = Package(
         .library(name: "Swift-SocketCAN-ISOTP", targets: ["Swift-SocketCAN-ISOTP"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/AutomotiveSwift/Swift-CAN", branch: "master")
+        .package(url: "https://github.com/Automotive-Swift/Swift-CAN", branch: "master")
     ],
     targets: [
         .target(
