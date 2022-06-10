@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Swift-CAN",
+        "repositoryURL": "https://github.com/Automotive-Swift/Swift-CAN",
+        "state": {
+          "branch": "master",
+          "revision": "5ade8df1a9f352bda038c8f4a270f8216dc2e2cf",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
